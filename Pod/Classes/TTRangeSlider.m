@@ -3,6 +3,14 @@
 //
 //  Created by Tom Thorpe
 
+float min(float a, float b) {
+  return a < b ? a : b;
+}
+
+float max(float a, float b) {
+  return a > b ? a : b;
+}
+
 #import "TTRangeSlider.h"
 
 const int HANDLE_TOUCH_AREA_EXPANSION = -30; //expand the touch area of the handle by this much (negative values increase size) so that you don't have to touch right on the handle to activate it.
@@ -418,11 +426,11 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
 
     //ensure the minimum and maximum selected values are within range. Access the values directly so we don't cause this refresh method to be called again (otherwise changing the properties causes a refresh)
-    if (self.selectedMinimum < MIN(self.minValue, self.maxValue)){
-        _selectedMinimum = MIN(self.minValue, self.maxValue);
+    if (self.selectedMinimum < min(self.minValue, self.maxValue)){
+        _selectedMinimum = min(self.minValue, self.maxValue);
     }
-    if (self.selectedMaximum > MAX(self.minValue, self.maxValue)){
-        _selectedMaximum = MAX(self.minValue, self.maxValue);
+    if (self.selectedMaximum > max(self.minValue, self.maxValue)){
+        _selectedMaximum = max(self.minValue, self.maxValue);
     }
 
     //update the frames in a transaction so that the tracking doesn't continue until the frame has moved.
