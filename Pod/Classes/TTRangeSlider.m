@@ -430,11 +430,11 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
 
     //ensure the minimum and maximum selected values are within range. Access the values directly so we don't cause this refresh method to be called again (otherwise changing the properties causes a refresh)
-    if (self.selectedMinimum < min(self.minValue, self.maxValue)){
-        _selectedMinimum = min(self.minValue, self.maxValue);
+    if (self.selectedMinimum < self.minValue){
+        _selectedMinimum = self.minValue;
     }
-    if (self.selectedMaximum > max(self.minValue, self.maxValue)){
-        _selectedMaximum = max(self.minValue, self.maxValue);
+    if (self.selectedMaximum > self.maxValue){
+        _selectedMaximum = self.maxValue;
     }
 
     //update the frames in a transaction so that the tracking doesn't continue until the frame has moved.
@@ -599,16 +599,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 @synthesize minValue = _minValue;
 
 - (float)minValue {
-  if (@available(iOS 10.0, *)) {
-    switch (self.traitCollection.layoutDirection) {
-        case UITraitEnvironmentLayoutDirectionRightToLeft:
-        return _maxValue;
-      default:
-        return _minValue;
-    }
-  } else {
-    return _minValue;
-  }
+  return min(_minValue, _maxValue);
 }
 
 - (void)setMinValue:(float)minValue {
@@ -646,16 +637,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 @synthesize maxValue = _maxValue;
 
 - (float)maxValue {
-  if (@available(iOS 10.0, *)) {
-    switch (self.traitCollection.layoutDirection) {
-        case UITraitEnvironmentLayoutDirectionRightToLeft:
-        return _minValue;
-      default:
-        return _maxValue;
-    }
-  } else {
-    return _maxValue;
-  }
+  return max(_minValue, _maxValue);
 }
 
 - (void)setMaxValue:(float)maxValue {
