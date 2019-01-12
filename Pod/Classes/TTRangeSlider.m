@@ -616,6 +616,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
 - (float)normalizedMinValue {
   float result = self.minValue;
+  if (result < 0.0) result = self.maxValue;
   if (result < 0.0) result *= -1;
   return result;
 }
@@ -654,6 +655,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
 - (float)normalizedMaxValue {
   float result = self.maxValue;
+  if (result < 0.0) result = self.minValue;
   if (result < 0.0) result *= -1;
   return result;
 }
@@ -680,6 +682,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
 - (float)normalizedSelectedMinimum {
   float result = self.selectedMinimum;
+  if (result < 0.0) result = self.selectedMaximum;
   if (result < 0.0) result *= -1;
   return result;
 }
@@ -706,6 +709,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
 - (float)normalizedSelectedMaximum {
   float result = self.selectedMaximum;
+  if (result < 0.0) result = self.selectedMinimum;
   if (result < 0.0) result *= -1;
   return result;
 }
