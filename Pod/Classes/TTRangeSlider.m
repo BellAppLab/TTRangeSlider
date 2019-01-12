@@ -208,6 +208,28 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+  [super traitCollectionDidChange:previousTraitCollection];
+
+  if (@available(iOS 10.0, *)) {
+    UITraitEnvironmentLayoutDirection previousDirection = !previousTraitCollection ? UITraitEnvironmentLayoutDirectionUnspecified : previousTraitCollection.layoutDirection;
+    UITraitEnvironmentLayoutDirection currentDirection = self.traitCollection.layoutDirection;
+
+    if ((currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && previousDirection != UITraitEnvironmentLayoutDirectionRightToLeft) ||
+        (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && previousDirection == UITraitEnvironmentLayoutDirectionRightToLeft))
+    {
+      float minV = _minValue;
+      _minValue = -_maxValue;
+      _maxValue = -minV;
+
+      minV = _selectedMinimum;
+      _selectedMinimum = -_selectedMaximum;
+      _selectedMaximum = -minV;
+
+      [self refresh];
+    }
+  }
+}
 
 - (void)tintColorDidChange {
     CGColorRef color = self.tintColor.CGColor;
@@ -566,17 +588,112 @@ static const CGFloat kLabelsFontSize = 12.0f;
     return _decimalNumberFormatter;
 }
 
+@synthesize minValue = _minValue;
+
+- (float)minValue {
+  if (@available(iOS 10.0, *)) {
+    switch (self.traitCollection.layoutDirection) {
+        case UITraitEnvironmentLayoutDirectionRightToLeft:
+        return _maxValue;
+      default:
+        return _minValue;
+    }
+  } else {
+    return _minValue;
+  }
+}
+
 - (void)setMinValue:(float)minValue {
-    _minValue = minValue;
+  float finalValue = minValue == -0.0 ? 0.0 : minValue;
+  if (@available(iOS 10.0, *)) {
+    UITraitEnvironmentLayoutDirection currentDirection = self.traitCollection.layoutDirection;
+    if (currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && finalValue > 0)
+    {
+      _maxValue = -finalValue;
+    }
+    else if (currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && finalValue <= 0)
+    {
+      _maxValue = finalValue;
+    }
+    else if (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && finalValue < 0)
+    {
+      _minValue = -finalValue;
+    }
+    else if (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && finalValue >= 0)
+    {
+      _minValue = finalValue;
+    }
+  } else {
+     _minValue = finalValue;
+  }
     [self refresh];
+}
+
+- (float)normalizedMinValue {
+  float result = self.minValue;
+  if (result < 0.0) result *= -1;
+  return result;
+}
+
+@synthesize maxValue = _maxValue;
+
+- (float)maxValue {
+  if (@available(iOS 10.0, *)) {
+    switch (self.traitCollection.layoutDirection) {
+        case UITraitEnvironmentLayoutDirectionRightToLeft:
+        return _minValue;
+      default:
+        return _maxValue;
+    }
+  } else {
+    return _maxValue;
+  }
 }
 
 - (void)setMaxValue:(float)maxValue {
-    _maxValue = maxValue;
-    [self refresh];
+  float finalValue = maxValue == -0.0 ? 0.0 : maxValue;
+  if (@available(iOS 10.0, *)) {
+    UITraitEnvironmentLayoutDirection currentDirection = self.traitCollection.layoutDirection;
+    if (currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && finalValue > 0)
+    {
+      _minValue = -finalValue;
+    }
+    else if (currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && finalValue <= 0)
+    {
+      _minValue = finalValue;
+    }
+    else if (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && finalValue < 0)
+    {
+      _maxValue = -finalValue;
+    }
+    else if (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && finalValue >= 0)
+    {
+      _maxValue = finalValue;
+    }
+  } else {
+    _maxValue = finalValue;
+  }
+  [self refresh];
+}
+
+- (float)normalizedMaxValue {
+  float result = self.maxValue;
+  if (result < 0.0) result *= -1;
+  return result;
 }
 
 - (void)setSelectedMinimum:(float)selectedMinimum {
+  selectedMinimum = selectedMinimum == -0.0 ? 0.0 : selectedMinimum;
+
+  if (@available(iOS 10.0, *)) {
+    UITraitEnvironmentLayoutDirection currentDirection = self.traitCollection.layoutDirection;
+    if ((currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && selectedMinimum > 0) ||
+        (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && selectedMinimum < 0))
+    {
+      selectedMinimum *= -1;
+    }
+  }
+
     if (selectedMinimum < self.minValue){
         selectedMinimum = self.minValue;
     }
@@ -585,13 +702,36 @@ static const CGFloat kLabelsFontSize = 12.0f;
     [self refresh];
 }
 
+- (float)normalizedSelectedMinimum {
+  float result = self.selectedMinimum;
+  if (result < 0.0) result *= -1;
+  return result;
+}
+
 - (void)setSelectedMaximum:(float)selectedMaximum {
+  selectedMaximum = selectedMaximum == -0.0 ? 0.0 : selectedMaximum;
+
+  if (@available(iOS 10.0, *)) {
+    UITraitEnvironmentLayoutDirection currentDirection = self.traitCollection.layoutDirection;
+    if ((currentDirection == UITraitEnvironmentLayoutDirectionRightToLeft && selectedMaximum > 0) ||
+        (currentDirection != UITraitEnvironmentLayoutDirectionRightToLeft && selectedMaximum < 0))
+    {
+      selectedMaximum *= -1;
+    }
+  }
+
     if (selectedMaximum > self.maxValue){
         selectedMaximum = self.maxValue;
     }
 
     _selectedMaximum = selectedMaximum;
     [self refresh];
+}
+
+- (float)normalizedSelectedMaximum {
+  float result = self.selectedMaximum;
+  if (result < 0.0) result *= -1;
+  return result;
 }
 
 -(void)setMinLabelColour:(UIColor *)minLabelColour{

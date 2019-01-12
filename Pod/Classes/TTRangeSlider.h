@@ -19,23 +19,27 @@ IB_DESIGNABLE
  * The minimum possible value to select in the range
  */
 @property (nonatomic, assign) IBInspectable float minValue;
+@property (nonatomic, readonly) float normalizedMinValue;
 
 /**
  * The maximum possible value to select in the range
  */
 @property (nonatomic, assign) IBInspectable float maxValue;
+@property (nonatomic, readonly) float normalizedMaxValue;
 
 /**
  * The preselected minumum value
  * (note: This should be less than the selectedMaximum)
  */
 @property (nonatomic, assign) IBInspectable float selectedMinimum;
+@property (nonatomic, readonly) float normalizedSelectedMinimum;
 
 /**
  * The preselected maximum value
  * (note: This should be greater than the selectedMinimum)
  */
 @property (nonatomic, assign) IBInspectable float selectedMaximum;
+@property (nonatomic, readonly) float normalizedSelectedMaximum;
 
 /**
  * Each handle in the slider has a label above it showing the current selected value. By default, this is displayed as a decimal format.
