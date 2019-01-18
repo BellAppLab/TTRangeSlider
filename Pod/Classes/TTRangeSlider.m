@@ -455,6 +455,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
 
     CGPoint location = [touch locationInView:self];
+    CGPoint normalizedLocation = CGPointMake(location.x, CGRectGetMidY(self.sliderLine.frame));
 
     //find out the percentage along the line we are in x coordinate terms (subtracting half the frames width to account for moving the middle of the handle, not the left hand side)
     float percentage = ((location.x-CGRectGetMinX(self.sliderLine.frame)) - self.handleDiameter/2) / (CGRectGetMaxX(self.sliderLine.frame) - CGRectGetMinX(self.sliderLine.frame));
@@ -464,7 +465,10 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
     if (self.leftHandleSelected)
     {
-        if (selectedValue < self.selectedMaximum){
+        if (CGRectContainsPoint(self.sliderLine.frame, normalizedLocation) == NO) {
+            self.selectedMinimum = self.minValue;
+        }
+        else if (selectedValue < self.selectedMaximum){
             self.selectedMinimum = selectedValue;
         }
         else {
@@ -474,7 +478,10 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
     else if (self.rightHandleSelected)
     {
-        if (selectedValue > self.selectedMinimum || (self.disableRange && selectedValue >= self.minValue)){ //don't let the dots cross over, (unless range is disabled, in which case just dont let the dot fall off the end of the screen)
+        if (CGRectContainsPoint(self.sliderLine.frame, normalizedLocation) == NO) {
+            self.selectedMaximum = self.maxValue;
+        }
+        else if (selectedValue > self.selectedMinimum || (self.disableRange && selectedValue >= self.minValue)){ //don't let the dots cross over, (unless range is disabled, in which case just dont let the dot fall off the end of the screen)
             self.selectedMaximum = selectedValue;
         }
         else {
